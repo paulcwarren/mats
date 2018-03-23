@@ -6,7 +6,6 @@ To run:-
 ```
 $ git clone https://github.com/paulcwarren/mats.git
 $ cd mats
-mats $ mvn clean test
+mats $ GATEWAY=<gateway endpoint> ./mvnw clean test
 ```
 
-Only run against localhost'ed services.
