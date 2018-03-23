@@ -4,6 +4,7 @@ import org.junit.runner.RunWith;
 
 import static com.github.paulcwarren.ginkgo4j.Ginkgo4jDSL.*;
 import static com.jayway.restassured.RestAssured.given;
+import static java.lang.String.format;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.not;
@@ -11,6 +12,16 @@ import static org.hamcrest.Matchers.nullValue;
 
 @RunWith(Ginkgo4jRunner.class)
 public class MicroserviceAcceptanceTests {
+
+    private static final String GATEWAY;
+
+    static {
+        String gateway = System.getenv("GATEWAY");
+        if (gateway == null) {
+            gateway = "http://localhost:8080";
+        }
+        GATEWAY = gateway;
+    }
 
     private String username;
     private String password;
@@ -27,7 +38,7 @@ public class MicroserviceAcceptanceTests {
                             given().
                                     contentType("application/json").
                             when().
-                                    get("http://localhost:8080/").
+                                    get(format("%s/", GATEWAY)).
                             then().
                                     extract().response();
 
@@ -42,7 +53,7 @@ public class MicroserviceAcceptanceTests {
                                     cookie("XSRF-TOKEN", xrsfToken).
                                     header("X-XSRF-TOKEN", xrsfToken).
                                 when().
-                                    get("http://localhost:8080/uaa/api/account").
+                                    get(format("%s/uaa/api/account", GATEWAY)).
                                 then().
                                     extract().response();
 
@@ -59,9 +70,9 @@ public class MicroserviceAcceptanceTests {
                                             contentType("application/json").
                                             cookie("XSRF-TOKEN", xrsfToken).
                                             header("X-XSRF-TOKEN", xrsfToken).
-                                            body(String.format("{\"username\":\"%s\",\"password\":\"%s\"}", username, password)).
+                                            body(format("{\"username\":\"%s\",\"password\":\"%s\"}", username, password)).
                                         when().
-                                            post("http://localhost:8080/auth/login").
+                                            post(format("%s/auth/login", GATEWAY)).
                                         then().
                                             extract().response();
                             });
@@ -101,9 +112,9 @@ public class MicroserviceAcceptanceTests {
                                             contentType("application/json").
                                             cookie("XSRF-TOKEN", xrsfToken).
                                             header("X-XSRF-TOKEN", xrsfToken).
-                                        body(String.format("{\"username\":\"%s\",\"password\":\"%s\"}", username, password)).
+                                        body(format("{\"username\":\"%s\",\"password\":\"%s\"}", username, password)).
                                         when().
-                                            post("http://localhost:8080/auth/login").
+                                            post(format("%s/auth/login", GATEWAY)).
                                         then().extract().response();
                             });
                             It("should fail", () -> {
